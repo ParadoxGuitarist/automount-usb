@@ -41,6 +41,12 @@ do_mount()
     # Get info for this drive: $ID_FS_LABEL and $ID_FS_TYPE
     eval $(blkid -o udev ${DEVICE} | grep -i -e "ID_FS_LABEL" -e "ID_FS_TYPE")
 
+    # Abort if PARTLABEL contains keywords
+    if [[ $(blkid -o udev ${DEVICE} | grep -i -e PARTLABEL) == *"System"* ]]; then
+        ${log} "Skipping System Partition: ${DEVICE}"
+	exit 1
+    fi
+
     # Figure out a mount point to use
     LABEL=${ID_FS_LABEL}
     if grep -q " /media/${LABEL} " /etc/mtab; then
